@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title.primary_title }}{% endblock %}
+
+{% block content %}
+<section class="hero-surface py-5">
+  <div class="container">
+    <a class="link-secondary text-decoration-none small" href="{{ url_for('index') }}">Back to search</a>
+    <div class="row g-4 align-items-end mt-1">
+      <div class="col-lg-8">
+        <p class="small text-uppercase text-secondary mb-2">{{ title.title_type }}</p>
+        <h1 class="display-5 fw-semibold mb-2">{{ title.primary_title }}</h1>
+        <p class="lead text-secondary mb-0">{{ title.original_title }}{% if title.start_year %} · {{ title.start_year }}{% endif %}{% if title.runtime_minutes %} · {{ title.runtime_minutes }} minutes{% endif %}</p>
+      </div>
+      <div class="col-lg-4">
+        <div class="detail-stat-grid">
+          <div class="detail-stat-card">
+            <span class="small text-secondary">IMDb rating</span>
+            <strong>{{ title.rating.average if title.rating else 'N/A' }}</strong>
+          </div>
+          <div class="detail-stat-card">
+            <span class="small text-secondary">Votes</span>
+            <strong>{{ title.rating.votes if title.rating else 'N/A' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% if title.genres %}
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        {% for genre in title.genres %}
+          <span class="badge text-bg-light border">{{ genre }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="container py-5">
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="content-card h-100">
+        <h2 class="h5 mb-3">Title Snapshot</h2>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">IMDb id</dt>
+          <dd class="col-sm-8">{{ title.id }}</dd>
+
+          <dt class="col-sm-4">Primary title</dt>
+          <dd class="col-sm-8">{{ title.primary_title }}</dd>
+
+          <dt class="col-sm-4">Original title</dt>
+          <dd class="col-sm-8">{{ title.original_title or 'Unknown' }}</dd>
+
+          <dt class="col-sm-4">Release year</dt>
+          <dd class="col-sm-8">{{ title.start_year or 'Unknown' }}</dd>
+
+          <dt class="col-sm-4">Runtime</dt>
+          <dd class="col-sm-8">{{ title.runtime_minutes ~ ' minutes' if title.runtime_minutes else 'Unknown' }}</dd>
+
+          <dt class="col-sm-4">Adult title</dt>
+          <dd class="col-sm-8">{{ 'Yes' if title.adult else 'No' }}</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="content-card">
+        <h2 class="h5 mb-3">Current Dataset Scope</h2>
+        <p class="text-secondary mb-3">This temporary version of the app only uses the `titles` and `ratings` collections.</p>
+        <ul class="mb-0 text-secondary">
+          <li>Search comes from title basics.</li>
+          <li>Ratings come from title ratings.</li>
+          <li>Cast, crew, and alternate titles are disabled for now.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

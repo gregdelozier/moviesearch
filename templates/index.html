@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Movie Search{% endblock %}
+
+{% block content %}
+<section class="hero-surface py-5 py-lg-6">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-7">
+        <span class="eyebrow">IMDb TSV Explorer</span>
+        <h1 class="display-5 fw-semibold mt-3 mb-3">Search your MongoDB movie catalog by title, cast, and rating context.</h1>
+        <p class="lead text-secondary mb-0">This app assumes the Mongo collections created from the IMDb TSV files: titles, ratings, people, title_principals, title_crew, and title_akas.</p>
+      </div>
+      <div class="col-lg-5">
+        <div class="search-card shadow-sm">
+          <form method="get" action="{{ url_for('index') }}" class="row g-3">
+            <div class="col-12">
+              <label for="q" class="form-label">Title search</label>
+              <input id="q" name="q" class="form-control form-control-lg" value="{{ query }}" placeholder="The Matrix, Alien, Casablanca">
+            </div>
+            <div class="col-md-6">
+              <label for="type" class="form-label">Title type</label>
+              <select id="type" name="type" class="form-select">
+                <option value="movie" {% if title_type == 'movie' %}selected{% endif %}>Movie</option>
+                <option value="tvSeries" {% if title_type == 'tvSeries' %}selected{% endif %}>TV series</option>
+                <option value="short" {% if title_type == 'short' %}selected{% endif %}>Short</option>
+                <option value="all" {% if title_type == 'all' %}selected{% endif %}>All</option>
+              </select>
+            </div>
+            <div class="col-md-6 d-grid align-self-end">
+              <button class="btn btn-dark btn-lg" type="submit">Search</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="container mt-n4 pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Results</h2>
+    <span class="text-secondary small">Page {{ page }}</span>
+  </div>
+
+  {% if results %}
+    <div class="row g-4">
+      {% for title in results %}
+        <div class="col-md-6 col-xl-4">
+          <article class="result-card h-100">
+            <div class="d-flex justify-content-between gap-3 align-items-start">
+              <div>
+                <p class="small text-uppercase text-secondary mb-2">{{ title.title_type or 'title' }}</p>
+                <h3 class="h5 mb-1"><a class="stretched-link text-decoration-none" href="{{ url_for('title_detail', title_id=title.id) }}">{{ title.primary_title }}</a></h3>
+                <p class="text-secondary mb-2">{{ title.start_year or 'Unknown year' }}{% if title.runtime_minutes %} · {{ title.runtime_minutes }} min{% endif %}</p>
+              </div>
+              {% if title.rating %}
+                <div class="rating-pill text-center">
+                  <div class="fw-semibold">{{ title.rating.average }}</div>
+                  <div class="small text-secondary">{{ title.rating.votes }} votes</div>
+                </div>
+              {% endif %}
+            </div>
+            {% if title.genres %}
+              <div class="mt-3 d-flex flex-wrap gap-2">
+                {% for genre in title.genres %}
+                  <span class="badge text-bg-light border">{{ genre }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </article>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <div>
+        {% if page > 1 %}
+          <a class="btn btn-outline-secondary" href="{{ url_for('index', q=query, type=title_type, page=page - 1) }}">Previous</a>
+        {% endif %}
+      </div>
+      <div>
+        {% if has_more %}
+          <a class="btn btn-dark" href="{{ url_for('index', q=query, type=title_type, page=page + 1) }}">Next</a>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3 class="h5">No matching titles yet</h3>
+      <p class="text-secondary mb-0">Try a broader title search, or switch the title type to all.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
